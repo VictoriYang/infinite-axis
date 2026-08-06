@@ -1,0 +1,114 @@
+# =============================================================
+# Hugo 站点配置 —— 论文阅读笔记 (Hugo + PaperMod)
+# 需要你手动修改的地方都标了「EDIT ME」。
+# 部署到 GitHub Pages 时，baseURL 由 GitHub Actions 自动注入，
+# 这里的 baseURL 只在本地 `hugo server` 预览时用得到。
+# =============================================================
+
+baseURL: "https://VictoriYang.github.io/paper-notes/"
+languageCode: "zh-cn"
+title: "Paper Notes"                                  # EDIT ME: 站点标题
+theme: "PaperMod"
+
+# 论文笔记条目会越来越多，分页设大一点
+pagination:
+  pagerSize: 15
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+
+# ---- 搜索需要首页额外输出 JSON 索引 ----
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+# ---- Markdown / 数学公式渲染 ----
+markup:
+  goldmark:
+    renderer:
+      unsafe: true          # 允许在 md 里写原始 HTML（嵌图/视频用得到）
+    extensions:
+      passthrough:          # 让 $...$ / $$...$$ 原样透传给 KaTeX，不被 Markdown 破坏
+        enable: true
+        delimiters:
+          block:
+            - ["$$", "$$"]
+            - ["\\[", "\\]"]
+          inline:
+            - ["$", "$"]
+            - ["\\(", "\\)"]
+  highlight:
+    noClasses: false
+    codeFences: true
+    guessSyntax: true
+    lineNos: false
+    style: monokai
+
+params:
+  env: production
+  description: "我的论文阅读记录与总结"     # EDIT ME
+  author: "VictoriYang"
+  defaultTheme: auto                         # auto / light / dark
+  disableThemeToggle: false
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowToc: true                              # 文章右侧目录，长笔记很有用
+  TocOpen: false
+  ShowWordCount: true
+  math: true                                 # 全站默认开启 KaTeX（单篇可用 front matter 覆盖）
+
+  # 首页信息模式（PaperMod 的 profile 模式；想直接进文章流可删掉整个 profileMode）
+  profileMode:
+    enabled: false
+
+  homeInfoParams:
+    Title: "论文阅读笔记 \U0001F4DA"
+    Content: >
+      记录我读过的论文：动机、方法、关键结论与我的思考。
+      按 [标签](tags/) 浏览主题，或用右上角 \U0001F50D 搜索。
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/VictoriYang"
+    - name: rss
+      url: "index.xml"
+
+  fuseOpts:                # 搜索匹配参数
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content", "tags"]
+
+# ---- 顶部菜单 ----
+menu:
+  main:
+    - identifier: posts
+      name: 笔记
+      url: /posts/
+      weight: 10
+    - identifier: tags
+      name: 标签
+      url: /tags/
+      weight: 20
+    - identifier: archives
+      name: 归档
+      url: /archives/
+      weight: 30
+    - identifier: search
+      name: 搜索
+      url: /search/
+      weight: 40
+    - identifier: about
+      name: 关于
+      url: /about/
+      weight: 50
