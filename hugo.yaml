@@ -5,7 +5,7 @@
 # 这里的 baseURL 只在本地 `hugo server` 预览时用得到。
 # =============================================================
 
-baseURL: "https://VictoriYang.github.io/paper-notes/"
+baseURL: "https://VictoriYang.github.io/infinite-axis/"
 languageCode: "zh-cn"
 title: "Paper Notes"                                  # EDIT ME: 站点标题
 theme: "PaperMod"
