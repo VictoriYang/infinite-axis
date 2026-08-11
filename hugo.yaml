@@ -15,6 +15,14 @@ pagination:
   pagerSize: 15
 
 enableRobotsTXT: true
+
+# 显式声明 taxonomies 会覆盖 Hugo 默认值，tag/category 必须一并列出。
+# series 用来把同一条技术脉络的多篇笔记串成系列（如 Dyna 系列）。
+taxonomies:
+  tag: tags
+  category: categories
+  series: series
+
 buildDrafts: false
 buildFuture: false
 buildExpired: false
