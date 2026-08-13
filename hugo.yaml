@@ -60,6 +60,10 @@ params:
   env: production
   description: "我的论文阅读记录与总结"     # EDIT ME
   author: "VictoriYang"
+
+  # 首页与 RSS 只收录 posts。不加这行的话 /radar/ 的每周雷达会一起灌进首页，
+  # 把精读长文压下去。新增 section 时按需往这里加。
+  mainSections: ["posts"]
   defaultTheme: auto                         # auto / light / dark
   disableThemeToggle: false
   ShowReadingTime: true
@@ -104,6 +108,10 @@ menu:
       name: 笔记
       url: /posts/
       weight: 10
+    - identifier: radar
+      name: 技术雷达
+      url: /radar/
+      weight: 15
     - identifier: tags
       name: 标签
       url: /tags/
