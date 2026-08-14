@@ -112,6 +112,10 @@ menu:
       name: 技术雷达
       url: /radar/
       weight: 15
+    - identifier: reading
+      name: 推荐阅读
+      url: /reading/
+      weight: 17
     - identifier: tags
       name: 标签
       url: /tags/
