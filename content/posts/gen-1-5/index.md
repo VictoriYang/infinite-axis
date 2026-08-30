@@ -106,7 +106,7 @@ GEN-1.5 是一个多模态大模型，处理视频输入（30 秒记忆，并伴
 
 ## 面向机器人的预训练规模化（Scaling Pretraining for Robotics）
 
-[GEN-0](https://generalistai.com/blog/gen-0) 展现了可预测的[缩放律](https://arxiv.org/abs/2001.08361)，[GEN-1](https://generalistai.com/blog/gen-1) 证明了模型可以被后训练到 99%+ 成功率的「精通」（mastery）水平，并展现出即兴智能的初步迹象。GEN-1.5 到现在已经**连续训练了八个多月，**各指标都在持续变好，新任务变得更省数据、更省算力、更通用。
+[GEN-0](https://generalistai.com/blog/gen-0) 展现了可预测的[缩放律](https://arxiv.org/abs/2001.08361)，[GEN-1](https://generalistai.com/blog/gen-1) 证明了模型可以被后训练到 99%+ 成功率的「精通」（mastery）水平，并展现出即兴智能的初步迹象。GEN-1.5 到现在已经**连续训练了八个多月**，各指标都在持续变好，新任务变得更省数据、更省算力、更通用。
 
 ![图 3：验证集上下一步动作预测误差随 8 个月预训练持续下降，标注 Phase 1/2/3](assets/images/fig3-training.png)
 
