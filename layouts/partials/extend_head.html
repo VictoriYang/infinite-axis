@@ -13,3 +13,37 @@
     throwOnError: false
   });"></script>
 {{- end }}
+
+{{- /* Mux HLS 播放：Safari 原生吃 m3u8，其余浏览器用 hls.js。
+       视频滚进视口才挂源，且 hls.js 关掉自动加载，点播放时才真正拉分片。 */ -}}
+{{- if .Params.mux }}
+<script defer src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js" crossorigin="anonymous"></script>
+<script>
+window.addEventListener('load', function () {
+  var vids = document.querySelectorAll('video.mux-video');
+  if (!vids.length) return;
+
+  var attach = function (v) {
+    if (v.dataset.attached) return;
+    v.dataset.attached = '1';
+    var src = v.dataset.hls;
+    if (v.canPlayType('application/vnd.apple.mpegurl')) {
+      v.src = src;                       // Safari 原生 HLS，preload=none 不会预下载
+      return;
+    }
+    if (!window.Hls || !window.Hls.isSupported()) return;
+    var hls = new window.Hls({ autoStartLoad: false });
+    hls.attachMedia(v);
+    hls.loadSource(src);
+    v.addEventListener('play', function () { hls.startLoad(); });
+  };
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { attach(e.target); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '200px' });
+  Array.prototype.forEach.call(vids, function (v) { io.observe(v); });
+});
+</script>
+{{- end }}

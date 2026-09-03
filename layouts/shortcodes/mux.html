@@ -1,0 +1,11 @@
+{{- /* Mux 托管的视频：这类资产只发 HLS（mp4_support=none），所以不能直接 <video src=...mp4>。
+       poster 走 image.mux.com 缩略图，播放由 extend_head.html 里的 hls.js 兜底（Safari 原生支持 HLS）。 */ -}}
+{{- $id := .Get "id" -}}
+{{- $t := .Get "time" | default "1" -}}
+<figure class="mux-figure">
+  <video class="mux-video" controls loop muted playsinline preload="none"
+         poster="https://image.mux.com/{{ $id }}/thumbnail.webp?time={{ $t }}"
+         data-hls="https://stream.mux.com/{{ $id }}.m3u8"
+         {{ with .Get "label" }}aria-label="{{ . }}"{{ end }}></video>
+  {{- with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+</figure>
