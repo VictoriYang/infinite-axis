@@ -1,0 +1,222 @@
+{{- /* 侧栏的通用部分：文章页目录/进度/外链抽取（JS），列表页标签云与归档（服务端）。
+       注意 baseof.html 用 partialCached 按 .Layout/.Kind 缓存页脚，
+       所以这里只能出现「同一 Kind 下所有页面都相同」的内容；
+       按页变化的部分（系列、相关笔记）放在 extend_post_content.html。 */ -}}
+
+{{- if eq .Kind "page" }}
+<script>
+(function () {
+  var article = document.querySelector('.post-single');
+  var content = article && article.querySelector('.post-content');
+  if (!content) return;
+
+  /* ---------- 左栏：目录 + 阅读进度 ---------- */
+  var inlineToc = article.querySelector('details.toc .inner ul');
+
+  if (inlineToc) {
+    var tocRail = document.createElement('aside');
+    tocRail.className = 'side-rail rail-toc';
+    tocRail.innerHTML = '<div class="rail-title">目录</div>' +
+                        '<div class="rail-progress"><span></span></div>';
+    tocRail.appendChild(inlineToc.cloneNode(true));
+    document.body.appendChild(tocRail);
+
+    var fill = tocRail.querySelector('.rail-progress > span');
+    var links = Array.prototype.slice.call(tocRail.querySelectorAll('a[href^="#"]'));
+    var targets = links.map(function (a) {
+      return document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    });
+
+    var tick = function () {
+      var span = article.offsetHeight - window.innerHeight;
+      var pct = span > 0 ? (window.scrollY - article.offsetTop) / span : 1;
+      fill.style.width = Math.min(100, Math.max(0, pct * 100)).toFixed(1) + '%';
+
+      var cur = -1;
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i] && targets[i].getBoundingClientRect().top < 120) cur = i;
+      }
+      links.forEach(function (a, i) { a.classList.toggle('active', i === cur); });
+      if (cur > -1) {
+        var box = links[cur].getBoundingClientRect(), rb = tocRail.getBoundingClientRect();
+        if (box.top < rb.top || box.bottom > rb.bottom) {
+          tocRail.scrollTop += box.top - rb.top - rb.height / 3;
+        }
+      }
+    };
+
+    var queued = false;
+    window.addEventListener('scroll', function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; tick(); });
+    }, { passive: true });
+    tick();
+  }
+
+  /* ---------- 右栏顶部：正文外链抽成参考文献 ---------- */
+  var seen = {}, refs = [];
+  Array.prototype.forEach.call(content.querySelectorAll('a[href]'), function (a) {
+    if (!/^https?:/.test(a.href) || a.hostname === location.hostname) return;
+    var label = (a.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!label || seen[a.href]) return;
+    seen[a.href] = true;
+    refs.push({ href: a.href, label: label, host: a.hostname.replace(/^www\./, ''), node: a });
+  });
+
+  var slot = document.getElementById('rail-refs');
+  if (slot && refs.length) {
+    slot.className = 'rail-refs rail-block';
+    var head = document.createElement('div');
+    head.className = 'rail-title';
+    head.textContent = '参考文献 · ' + refs.length;
+    slot.appendChild(head);
+
+    var ol = document.createElement('ol');
+    refs.forEach(function (r, i) {
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = r.href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.title = r.label + ' — ' + r.href;
+      a.innerHTML = '<span class="ref-num">[' + (i + 1) + ']</span>' +
+                    '<span class="ref-label"></span><span class="ref-host"></span>';
+      a.querySelector('.ref-label').textContent = r.label.length > 46 ? r.label.slice(0, 46) + '…' : r.label;
+      a.querySelector('.ref-host').textContent = r.host;
+
+      /* 点序号回跳正文出现位置，点标题正常开外链 */
+      a.querySelector('.ref-num').addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        r.node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        r.node.classList.add('ref-flash');
+        setTimeout(function () { r.node.classList.remove('ref-flash'); }, 1500);
+      });
+
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+    slot.appendChild(ol);
+  }
+
+  var side = document.getElementById('rail-side');
+  if (side && !side.querySelector('.rail-block')) side.remove();
+})();
+</script>
+{{- end }}
+
+{{- /* ---------- 列表页侧栏：左标签云 / 右近期 + 归档 + 系列 ---------- */ -}}
+{{- if ne .Kind "page" }}
+{{- $posts := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $tags := site.Taxonomies.tags }}
+{{- $series := site.Taxonomies.series }}
+{{- if $tags }}
+<aside class="side-rail rail-tags">
+  <div class="rail-block">
+    <div class="rail-title">标签</div>
+    <div class="tag-cloud">
+      {{- range first 30 $tags.ByCount }}
+      <a class="tag-chip" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span class="tag-n">{{ .Count }}</span></a>
+      {{- end }}
+    </div>
+    <a class="rail-more" href="{{ "tags/" | relURL }}">全部标签 →</a>
+  </div>
+</aside>
+{{- end }}
+<aside class="side-rail rail-nav">
+  {{- if ne .Kind "home" }}
+  <div class="rail-block">
+    <div class="rail-title">近期笔记</div>
+    <ul class="rail-list">
+      {{- range first 5 $posts }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+  <div class="rail-block">
+    <div class="rail-title">归档</div>
+    <ul class="rail-list">
+      {{- range $posts.GroupByPublishDate "2006" }}
+      {{- if ne .Key "0001" }}
+      <li><a href="{{ (printf "archives/#%s" .Key) | relURL }}">{{ .Key }}<span class="rail-n">{{ len .Pages }}</span></a></li>
+      {{- end }}
+      {{- end }}
+    </ul>
+    {{- if $series }}
+    <div class="rail-sub">
+      <div class="rail-title">系列</div>
+      <ul class="rail-list">
+        {{- range $series.ByCount }}
+        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span class="rail-n">{{ .Count }}</span></a></li>
+        {{- end }}
+      </ul>
+    </div>
+    {{- end }}
+    <a class="rail-more" href="{{ "archives/" | relURL }}">全部归档 →</a>
+  </div>
+</aside>
+{{- end }}
+
+{{- /* ---------- 侧栏搬到站点页脚之前：窄屏降级成常规区块时才落在正确位置 ---------- */ -}}
+<script>
+(function () {
+  var rails = document.querySelectorAll('.side-rail');
+  if (!rails.length) return;
+
+  /* 标签页当前标签高亮：页脚被 partialCached 缓存，只能在客户端标 */
+  Array.prototype.forEach.call(document.querySelectorAll('.tag-chip'), function (a) {
+    if (a.getAttribute('href') === location.pathname) a.classList.add('current');
+  });
+
+  var box = document.createElement('div');
+  box.className = 'rails';
+  Array.prototype.forEach.call(rails, function (r) { box.appendChild(r); });
+  var footer = document.querySelector('footer.footer');
+  if (footer) footer.parentNode.insertBefore(box, footer);
+  else document.body.appendChild(box);
+  document.body.classList.add('rails-on');
+})();
+</script>
+
+{{- /* ---------- giscus 评论 ---------- */ -}}
+{{- if and (eq .Kind "page") site.Params.giscus.repo }}
+<script>
+(function () {
+  var host = document.querySelector('.post-single');
+  if (!host) return;
+  var wrap = document.createElement('div');
+  wrap.className = 'giscus-wrap';
+  host.appendChild(wrap);
+
+  var s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.crossOrigin = 'anonymous';
+  s.async = true;
+  s.setAttribute('data-repo', {{ site.Params.giscus.repo | jsonify }});
+  s.setAttribute('data-repo-id', {{ site.Params.giscus.repoId | jsonify }});
+  s.setAttribute('data-category', {{ site.Params.giscus.category | default "Announcements" | jsonify }});
+  s.setAttribute('data-category-id', {{ site.Params.giscus.categoryId | jsonify }});
+  s.setAttribute('data-mapping', 'pathname');
+  s.setAttribute('data-strict', '1');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', 'top');
+  s.setAttribute('data-lang', 'zh-CN');
+  s.setAttribute('data-loading', 'lazy');
+
+  var pick = function () {
+    return document.documentElement.dataset.theme === 'dark' ? 'dark_dimmed' : 'light';
+  };
+  s.setAttribute('data-theme', pick());
+  wrap.appendChild(s);
+
+  /* 跟随站点亮/暗主题切换 */
+  new MutationObserver(function () {
+    var f = document.querySelector('iframe.giscus-frame');
+    if (f) f.contentWindow.postMessage({ giscus: { setConfig: { theme: pick() } } }, 'https://giscus.app');
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+{{- end }}

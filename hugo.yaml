@@ -23,6 +23,17 @@ taxonomies:
   category: categories
   series: series
 
+# 文章页右栏「相关笔记」的相似度来源：共享标签为主，同系列次之。
+related:
+  includeNewer: true
+  threshold: 20
+  toLower: true
+  indices:
+    - name: tags
+      weight: 100
+    - name: series
+      weight: 60
+
 buildDrafts: false
 buildFuture: false
 buildExpired: false
@@ -84,13 +95,21 @@ params:
     Title: "论文阅读笔记 \U0001F4DA"
     Content: >
       记录我读过的论文：动机、方法、关键结论与我的思考。
-      按 [标签](tags/) 浏览主题，或用右上角 \U0001F50D 搜索。
+      用右上角 🔍 搜索，或从 [笔记](posts/) 开始浏览。
 
   socialIcons:
     - name: github
       url: "https://github.com/VictoriYang"
     - name: rss
       url: "index.xml"
+
+  # ---- 评论：giscus（基于 GitHub Discussions）----
+  # repo 为空时评论区不渲染。启用步骤见 README「评论」一节。
+  giscus:
+    repo: ""                   # 例：VictoriYang/infinite-axis
+    repoId: ""
+    category: "Announcements"
+    categoryId: ""
 
   fuseOpts:                # 搜索匹配参数
     isCaseSensitive: false
@@ -116,14 +135,6 @@ menu:
       name: 推荐阅读
       url: /reading/
       weight: 17
-    - identifier: tags
-      name: 标签
-      url: /tags/
-      weight: 20
-    - identifier: archives
-      name: 归档
-      url: /archives/
-      weight: 30
     - identifier: search
       name: 搜索
       url: /search/

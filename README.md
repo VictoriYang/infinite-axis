@@ -49,14 +49,49 @@ summary: "一句话摘要，会显示在列表页。"
 正文用 Markdown，公式用 $...$（行内）或 $$...$$（独立行）。
 ```
 
+## 评论
+文章页可以挂 [giscus](https://giscus.app)（评论存在本仓库的 GitHub Discussions 里，读者用 GitHub 账号登录即可留言）。
+`hugo.yaml` 里 `params.giscus.repo` 为空时评论区不渲染，所以默认是关的。开启步骤：
+
+1. 仓库 **Settings → General → Features** 勾选 **Discussions**。
+2. 安装 [giscus app](https://github.com/apps/giscus) 并授权给本仓库。
+3. 打开 <https://giscus.app>，填入 `VictoriYang/infinite-axis`，Discussion 分类选 **Announcements**，
+   页面下方会生成一段配置，从中抄出 `data-repo-id` 和 `data-category-id`。
+4. 把四个值填回 `hugo.yaml`：
+
+```yaml
+giscus:
+  repo: "VictoriYang/infinite-axis"
+  repoId: "R_kgDO..."
+  category: "Announcements"
+  categoryId: "DIC_kwDO..."
+```
+
+映射方式是 `pathname`，即每篇文章按 URL 路径对应一条 Discussion；主题跟随站点亮/暗自动切换。
+
+## 侧栏
+宽屏（≥1240px）时正文两侧各挂一栏，窄屏自动折到正文下方，内容不丢。
+
+- 文章页：左栏是目录 + 阅读进度条，右栏依次是参考文献、系列、相关笔记。
+  参考文献由 JS 从正文里抽外链去重生成，不用手写；点条目前的序号会跳回正文中该链接出现的位置。
+- 列表页 / 标签页 / 归档：左栏标签云，右栏近期笔记 + 归档 + 系列。
+- 「相关笔记」按 `hugo.yaml` 的 `related` 配置算相似度（标签权重 100、系列 60），不用手工维护。
+
+改侧栏时注意：PaperMod 的 `baseof.html` 用 `partialCached "footer.html" . .Layout .Kind ...` 缓存页脚，
+所以 `extend_footer.html` 里**只能放同一 Kind 下所有页面都一样的内容**，否则会被第一个渲染到的页面腌住。
+按页变化的部分（系列、相关笔记）放在 `extend_post_content.html`，那个钩子没有缓存。
+
 ## 目录结构
 ```
-hugo.yaml                         # 站点配置（菜单、KaTeX、搜索等）
+hugo.yaml                                 # 站点配置（菜单、KaTeX、搜索、related、giscus 等）
 content/
-  posts/                          # 所有论文笔记放这里
+  posts/                                  # 所有论文笔记放这里
   about.md  archives.md  search.md
-layouts/partials/extend_head.html # KaTeX 公式注入
-static/                           # 图片等静态资源
-themes/PaperMod/                  # 主题（git submodule）
-.github/workflows/hugo.yml        # 自动部署
+layouts/partials/extend_head.html         # KaTeX 公式注入
+layouts/partials/extend_post_content.html # 右栏按页内容（系列 / 相关笔记）
+layouts/partials/extend_footer.html       # 侧栏通用部分 + giscus
+assets/css/extended/                      # 排版与侧栏样式
+static/                                   # 图片等静态资源
+themes/PaperMod/                          # 主题（git submodule）
+.github/workflows/hugo.yml                # 自动部署
 ```

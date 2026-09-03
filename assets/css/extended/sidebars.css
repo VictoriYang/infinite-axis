@@ -1,0 +1,306 @@
+/* 宽屏三栏。文章页：左栏常驻目录 + 阅读进度，右栏参考文献 / 系列 / 相关笔记。
+   列表页：左栏标签云，右栏近期 + 归档 + 系列。
+   窄屏（<1240px）侧栏转为正文下方的常规区块，保证标签与归档在手机上仍可达。 */
+
+:root {
+    --rail-width: 176px;
+    --rail-gap: 18px;
+    /* 正文容器半宽：--main-width 是内容宽，两侧各留一个 --gap 的内边距 */
+    --content-half: calc(var(--main-width) / 2 + var(--gap, 24px));
+}
+
+.side-rail {
+    width: var(--rail-width);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--secondary);
+    display: none;
+}
+
+.side-rail .rail-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    opacity: 0.65;
+    margin-bottom: 12px;
+}
+
+.rail-block + .rail-block,
+.rail-sub {
+    margin-top: 24px;
+}
+
+/* ---- 阅读进度 ---- */
+.rail-progress {
+    height: 3px;
+    background: var(--tertiary);
+    border-radius: 2px;
+    margin-bottom: 16px;
+}
+
+.rail-progress > span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    background: var(--primary);
+    transition: width 0.12s linear;
+}
+
+/* ---- 左栏目录 ---- */
+.rail-toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rail-toc ul ul {
+    padding-inline-start: 12px;
+}
+
+.rail-toc li {
+    margin: 0;
+}
+
+.rail-toc a {
+    display: block;
+    padding: 3px 0 3px 10px;
+    border-inline-start: 2px solid transparent;
+    color: var(--secondary);
+    text-decoration: none;
+    box-shadow: none !important;
+    background: none !important;
+}
+
+.rail-toc a:hover {
+    color: var(--primary);
+}
+
+.rail-toc a.active {
+    color: var(--primary);
+    font-weight: 600;
+    border-inline-start-color: var(--primary);
+}
+
+/* ---- 右栏参考文献 ---- */
+.rail-refs ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rail-refs li {
+    margin: 0 0 11px;
+}
+
+.rail-refs a {
+    display: block;
+    color: var(--secondary);
+    text-decoration: none;
+    box-shadow: none !important;
+    background: none !important;
+}
+
+.rail-refs a:hover .ref-label {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.rail-refs .ref-num {
+    color: var(--secondary);
+    opacity: 0.6;
+    margin-inline-end: 4px;
+    cursor: pointer;
+}
+
+.rail-refs .ref-num:hover {
+    opacity: 1;
+    color: var(--primary);
+}
+
+.rail-refs .ref-label {
+    display: inline;
+}
+
+.rail-refs .ref-host {
+    display: block;
+    font-size: 12px;
+    color: var(--secondary);
+    opacity: 0.6;
+    margin-top: 1px;
+    padding-inline-start: 1.4em;
+}
+
+/* 从右栏点回正文时的短暂高亮 */
+.ref-flash {
+    background: rgba(255, 213, 79, 0.45);
+    border-radius: 3px;
+    transition: background 1.4s ease-out;
+}
+
+.dark .ref-flash {
+    background: rgba(255, 213, 79, 0.28);
+}
+
+/* ---- 标签云 / 通用列表 ---- */
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--code-bg);
+    color: var(--secondary);
+    font-size: 13px;
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+.tag-chip:hover,
+.tag-chip.current {
+    background: var(--primary);
+    color: var(--theme);
+}
+
+.tag-chip .tag-n {
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rail-list li { margin: 0 0 6px; }
+
+.rail-list a {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--secondary);
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+.rail-list a:hover { color: var(--primary); }
+
+.rail-list .rail-n {
+    opacity: 0.55;
+    font-size: 12px;
+    flex: none;
+}
+
+.rail-list li.current > a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.rail-more {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--secondary);
+    opacity: 0.75;
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+.rail-more:hover {
+    opacity: 1;
+    color: var(--primary);
+}
+
+/* ---- 宽屏：固定在正文两侧 ---- */
+@media (min-width: 1240px) {
+    .rails-on .side-rail {
+        display: block;
+        position: fixed;
+        top: 104px;
+        max-height: calc(100vh - 148px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: var(--tertiary) transparent;
+    }
+
+    .side-rail::-webkit-scrollbar { width: 4px; }
+    .side-rail::-webkit-scrollbar-thumb { background: var(--tertiary); border-radius: 2px; }
+
+    /* 左栏贴着正文左边缘向外排，右栏反之，正文本身不位移 */
+    .rails-on .rail-toc,
+    .rails-on .rail-tags {
+        right: calc(50% + var(--content-half) + var(--rail-gap));
+    }
+
+    .rails-on .rail-side,
+    .rails-on .rail-nav {
+        left: calc(50% + var(--content-half) + var(--rail-gap));
+    }
+
+    /* 两栏生效时隐藏正文顶部的内嵌目录 */
+    .rails-on .post-single > details.toc { display: none; }
+}
+
+@media (min-width: 1440px) {
+    :root {
+        --rail-width: 208px;
+        --rail-gap: 26px;
+    }
+}
+
+@media (min-width: 1680px) {
+    :root {
+        --rail-width: 244px;
+        --rail-gap: 40px;
+    }
+}
+
+/* ---- 窄屏：降级成正文下方的区块，内容不丢 ---- */
+@media (max-width: 1239px) {
+    .rails {
+        max-width: calc(var(--main-width) + var(--gap, 24px) * 2);
+        margin: 0 auto 40px;
+        padding: 0 var(--gap, 24px);
+    }
+
+    .rails-on .side-rail {
+        display: block;
+        width: auto;
+        margin-top: 28px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    /* 窄屏用 PaperMod 原生的内嵌目录，不重复一份 */
+    .rails-on .rail-toc { display: none; }
+    .rail-progress { display: none; }
+
+    /* 参考文献动辄二三十条，摊成多列免得正文后面拖一条长尾 */
+    .rail-refs ol {
+        columns: 2;
+        column-gap: 36px;
+    }
+
+    .rail-refs li { break-inside: avoid; }
+}
+
+@media (max-width: 640px) {
+    .rail-refs ol { columns: 1; }
+}
+
+/* ---- 评论区 ---- */
+.giscus-wrap {
+    margin-top: 48px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}

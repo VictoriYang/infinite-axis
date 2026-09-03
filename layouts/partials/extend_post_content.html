@@ -1,0 +1,34 @@
+{{- /* 文章页右侧栏的服务端部分：参考文献占位（由 extend_footer 的 JS 填充）、系列、相关笔记。
+       必须放在这里而不是 extend_footer：baseof.html 用 partialCached 按 .Layout/.Kind 缓存页脚，
+       写在页脚里的按页内容会被第一个渲染到的页面「腌」住，所有文章共用同一份。 */ -}}
+{{- $posts := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $related := first 4 (where ($posts.Related .) "Permalink" "!=" .Permalink) }}
+<aside class="side-rail rail-side" id="rail-side">
+  <div class="rail-refs" id="rail-refs"></div>
+
+  {{- range .Params.series }}
+  {{- with index site.Taxonomies.series (. | urlize) }}
+  {{- if gt (len .Pages) 1 }}
+  <div class="rail-block">
+    <div class="rail-title">系列</div>
+    <ul class="rail-list">
+      {{- range .Pages.ByDate }}
+      <li{{ if eq .Permalink $.Permalink }} class="current"{{ end }}><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+  {{- end }}
+  {{- end }}
+
+  {{- with $related }}
+  <div class="rail-block">
+    <div class="rail-title">相关笔记</div>
+    <ul class="rail-list">
+      {{- range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+</aside>
