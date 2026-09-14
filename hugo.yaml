@@ -72,9 +72,9 @@ params:
   description: "我的论文阅读记录与总结"     # EDIT ME
   author: "VictoriYang"
 
-  # 首页与 RSS 只收录 posts。不加这行的话 /radar/ 的每周雷达会一起灌进首页，
-  # 把精读长文压下去。新增 section 时按需往这里加。
-  mainSections: ["posts"]
+  # 首页与 RSS 收录 posts 和 lab（自己跑的实验）。/radar/ 的每日雷达不进首页，
+  # 否则会把精读长文和实验记录压下去。新增 section 时按需往这里加。
+  mainSections: ["posts", "lab"]
   defaultTheme: auto                         # auto / light / dark
   disableThemeToggle: false
   ShowReadingTime: true
@@ -94,7 +94,8 @@ params:
   homeInfoParams:
     Title: "论文阅读笔记 \U0001F4DA"
     Content: >
-      记录我读过的论文：动机、方法、关键结论与我的思考。
+      记录我读过的论文：动机、方法、关键结论与我的思考；
+      自己跑的实验和最新技术发现放在 [实验记录](lab/)。
       用右上角 🔍 搜索，或从 [笔记](posts/) 开始浏览。
 
   socialIcons:
@@ -127,6 +128,10 @@ menu:
       name: 笔记
       url: /posts/
       weight: 10
+    - identifier: lab
+      name: 实验记录
+      url: /lab/
+      weight: 12
     - identifier: radar
       name: 技术雷达
       url: /radar/

@@ -1,0 +1,21 @@
+{
+  "outcome": "failed",
+  "source_files": 738,
+  "valid_source_frames": 737,
+  "decoded_frames": 737,
+  "excluded_incomplete_files": [
+    "frame_0737.png"
+  ],
+  "fps": 8,
+  "duration_seconds": 92.125,
+  "size": [
+    960,
+    608
+  ],
+  "control_steps": 3630,
+  "custom_task_success": false,
+  "pose_writes_recorded": 0,
+  "editing": "All readable saved frames retained in order; incomplete final PNG excluded. Added outcome banner above original image. No interpolation or missing-frame synthesis.",
+  "timing": "Same 8 fps sampled playback as successful video; not real-time. Initial repeated frames retained.",
+  "end": "Recording ends when the unsuccessful simulation was interrupted; no fabricated release or placement."
+}
